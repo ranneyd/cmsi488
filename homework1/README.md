@@ -1,5 +1,5 @@
 #The Problems
-1. We saw in the course notes, on the page entitled "Syntax", an example of an abstract syntax tree with five concrete syntaxes. Show a sixth version of this "same" program, this time using a concrete syntax that also passes for a JSON object.
+1. We saw in the course notes, on the page entitled "[Syntax](http://cs.lmu.edu/~ray/notes/syntax/)", an example of an abstract syntax tree with five concrete syntaxes. Show a sixth version of this "same" program, this time using a concrete syntax that also passes for a JSON object.
 2. In the Ada language comments are started with "--" and go to the end of the line. Therefore the designers decided not to make the unary negation operator have the highest precedence. Instead, expressions are defined as follows:
 
    ```

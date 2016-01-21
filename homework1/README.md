@@ -4,13 +4,9 @@
 
 ``
 Exp  → Exp1 ('and' Exp1)*  |  Exp1 ('or' Exp1)*
-
 Exp1 → Exp2 (relop Exp2)?
-
 Exp2 → '-'? EXP3 (addop Exp3)*
-
 Exp3 → Exp4 (mulop Exp4)*
-
 Exp4 → Exp5 ('**'  Exp5)?  |  'not' Exp5  |  'abs' Exp5
 ``
 

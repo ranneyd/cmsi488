@@ -2,6 +2,9 @@ use strict;
 
 
 sub node;
+sub block;
+
+sub draw;
 
 sub error;
 sub printArray;
@@ -24,58 +27,130 @@ sub node{
     # Removes trailing or leading whitespace
     $string =~ s/^\s+|\s+$//g;
 
-    # Label on the diagram
-    my $label;
-
-    # Block
-    if($string =~ m/^\{(.*)\}$/){
-        # print "|found a block\n";
-        
-        # first match should be what's in the brackets
-        my $inside = $1;
-        my $subtree = [];
-
-        my $bracketCount = 0;
-        my $token = "";
-        # gonna loop through and tokenize. Tried with Regex but matching
-        # brackets  isn't happy
-        foreach $char (split("", $inside)) {
-            if($char =~ m/\w/){
-            }
-            elsif($char eq ","){
-                push @{$subtree}, $token;
-                $token = "";
-            }
-            elsif($char =~ m/\s/){
-                $token .= $char;
-            }
-        }
-
-        my $label = shift $subtree;
-
-        if(ref($label) ne "STRING") {
-            error $inside;
-            print "Remember that the first element of a block must be a word";
-            return -1;
-        }
-
-
-        push @{$tree}, $child;
-    }
+    #print "|Node time\n";
+    #print "|".$string."\n";
+    
     # Word
-    elsif($string =~ m/^\w+$/){
+    if($string =~ m/^\w+$/){
         push @{$tree}, $string;
     }
-    else{
-        error $string;
-        return -1;
+    # Block
+    elsif($string =~ m/^\{(.*)\}$/){
+        if(block($1, $tree) == -1){
+            return -1;
+        }
     }
+    else{
+        return error $string,
+            "Expected either a word or a block. Got " . $string;
+    }
+
+    return 0;
+
+}
+sub block{
+    my ($inside, $tree) = @_;
+
+    #print "|found a block\n";
+    #print "|".$inside . "\n";
+
+    my $subtree = [];
+
+    my $bracketCount = 0;
+    my $item = "";
+    # gonna loop through and tokenize. Tried with Regex but matching
+    # brackets  isn't happy
+    foreach my $char (split("", $inside)) {
+        #print "----\n";
+        #print "|char " . $char ."\n";
+        #print "|item ". $item . "\n";
+        #print "|bracketCount " . $bracketCount . "\n";
+        if($char eq "," && !$bracketCount){
+            #print "|comma time\n";
+            # In case we had a sub-block followed by a comma.
+            if($item ne ""){
+                push @{$subtree}, $item;
+                $item = "";  
+            }
+
+        }
+        elsif($char eq "{"){
+            #print "|open bracket time\n";
+            if($item ne "" && !$bracketCount){
+                return error $inside,
+                    "You have letters then {. Did you forget a comma?";
+            }
+            else{
+                $bracketCount++;
+                $item .= $char;
+            }
+        }
+        elsif($char eq "}"){
+            #print "|closed bracket time\n";
+            $item .= $char;
+            if(--$bracketCount == 0){
+                #print "|Uh oh, time to wrap this show up\n";
+                if(node($item, $subtree) == -1){
+                    return -1;
+                }
+                $item = ""; 
+            }
+        }
+        else{
+            # whitespace
+            if($char =~ m/\s/ && !$bracketCount) {
+                # whitespace without a comma is a no-go
+                if($item ne ""){
+                    return error $inside, 
+                        "Sketchy whitespace error. Did you forget a comma?";
+                }   
+            }
+            # just a letter or inside brackets
+            else{
+                #print "|just a letter\n";
+                $item .= $char;
+            }
+        }
+        #print "|final " . $item . "\n";
+    }
+
+    if($bracketCount != 0){
+        return error $inside,
+            "Mismatched brackets. Make sure every open has a close";
+    }
+    if($item ne ""){
+        push @{$subtree}, $item;
+    }
+    # returns empty string when not a reference, or a scalar in this case
+    if(ref($subtree->[0]) ne "") {
+        return error $inside,
+            "Remember that the first element of a block must be a word";
+    }
+
+
+    push @{$tree}, $subtree;
+    return 0;
+}
+
+
+sub draw{
+    my ($treeref) = @_;
+    my @tree = @{treeref};
+
+    # my $width = length( $label ) + 4;
+
+    # print "-" x $width . "\n";
+    # print "| " . $label . " |\n";
+    # print "-" x $width . "\n";
+    # print " " x ($width/2) . "|\n";
 
 }
 
 sub error{
-    my ( $msg ) = @_;
-    print "Syntax error near '" . substr( $msg, 0, 10 ) . "...'\n";
+    my ( $string, $msg ) = @_;
+    print "Syntax error near '" . substr( $string, 0, 10 ) . "...'\n";
+    print $msg . "\n";
+    return -1;
 }
 
 sub printArray{
@@ -121,18 +196,12 @@ sub main{
     my $tree = [];
 
     # Our macrosyntax states that our tree begins with one node
-    node( $exp, $tree );
-
-    printArray $tree;
+    if(node( $exp, $tree ) != -1) {
+        printArray $tree;
+    }
 }
-
-    # my $width = length( $label ) + 4;
-
-    # print "-" x $width . "\n";
-    # print "| " . $label . " |\n";
-    # print "-" x $width . "\n";
-    # print " " x ($width/2) . "|\n";
-
 
 main();
 
+
+#{foo, {bar, baz, {abc, def}, asdf}}

@@ -1,5 +1,5 @@
 use strict;
-
+use integer;
 
 sub node;
 sub block;
@@ -58,6 +58,11 @@ sub block{
 
     my $bracketCount = 0;
     my $item = "";
+
+    # width of children. Every child is one space apart and has a width of 4 +
+    # label content
+    my $width = 0;
+
     # gonna loop through and tokenize. Tried with Regex but matching
     # brackets  isn't happy
     foreach my $char (split("", $inside)) {
@@ -69,6 +74,10 @@ sub block{
             #print "|comma time\n";
             # In case we had a sub-block followed by a comma.
             if($item ne ""){
+                # if we have an empty array, this thing is the label
+                if(@{$subtree}){
+                    $width += 5 + length $item;
+                }
                 push @{$subtree}, $item;
                 $item = "";  
             }
@@ -93,6 +102,9 @@ sub block{
                 if(node($item, $subtree) == -1){
                     return -1;
                 }
+                # get the last element of the last thing in the list
+                $width += 1 + $subtree->[-1]->[-1];
+
                 $item = ""; 
             }
         }
@@ -119,6 +131,8 @@ sub block{
             "Mismatched brackets. Make sure every open has a close";
     }
     if($item ne ""){
+        $width += 5 + length $item;
+
         push @{$subtree}, $item;
     }
     # returns empty string when not a reference, or a scalar in this case
@@ -127,6 +141,8 @@ sub block{
             "Remember that the first element of a block must be a word";
     }
 
+    # add width to end, remove trailing space
+    push @{$subtree}, --$width;
 
     push @{$tree}, $subtree;
     return 0;
@@ -135,7 +151,13 @@ sub block{
 
 sub draw{
     my ($treeref) = @_;
-    my @tree = @{treeref};
+    my @tree = @{$treeref};
+
+    my $label = shift @tree;
+    my $width = pop @tree;
+
+    my $labelWidth = 4 + length $label;
+    my $leftMargin = ($width - $labelWidth) / 2;
 
     # my $width = length( $label ) + 4;
 
@@ -179,18 +201,20 @@ sub printArray{
 }
 
 sub main{
-    print "Enter an expression: ";
+    # print "Enter an expression: ";
 
-    my $exp = '';
-    my $buff;
+    # my $exp = '';
+    # my $buff;
 
-    # Loop over lines of input until only a newline is entered
-    while( ($buff = <>) =~ /^[^\n]+$/ ){
-        # Replace all contiguous whitespace with a single space
-        $buff =~ s/\s+/ /g;
+    # # Loop over lines of input until only a newline is entered
+    # while( ($buff = <>) =~ /^[^\n]+$/ ){
+    #     # Replace all contiguous whitespace with a single space
+    #     $buff =~ s/\s+/ /g;
 
-        $exp .= $buff . " "; 
-    }
+    #     $exp .= $buff . " "; 
+    # }
+
+    my $exp = '{foo, {bar, baz, {abc, def}, asdf}}';
 
     # This data structure will be our tree
     my $tree = [];
@@ -204,4 +228,4 @@ sub main{
 main();
 
 
-#{foo, {bar, baz, {abc, def}, asdf}}
+#{foo, foobar, {bar, baz, {abc, def}, asdf}}

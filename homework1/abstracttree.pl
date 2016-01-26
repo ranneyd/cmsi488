@@ -5,10 +5,14 @@ sub node;
 sub block;
 
 sub draw;
+sub drawNode;
+
+sub height;
 
 sub error;
 sub printArray;
 sub main;
+
 
 #
 # Microsyntax:
@@ -26,9 +30,6 @@ sub node{
 
     # Removes trailing or leading whitespace
     $string =~ s/^\s+|\s+$//g;
-
-    #print "|Node time\n";
-    #print "|".$string."\n";
     
     # Word
     if($string =~ m/^\w+$/){
@@ -51,27 +52,17 @@ sub node{
 sub block{
     my ($inside, $tree) = @_;
 
-    #print "|found a block\n";
-    #print "|".$inside . "\n";
-
     my $subtree = [];
 
     my $bracketCount = 0;
     my $item = "";
 
-    # width of children. Every child is one space apart and has a width of 4 +
-    # label content
+    # width of children. Every child is one space apart and has a width of 4 + label content
     my $width = 0;
 
-    # gonna loop through and tokenize. Tried with Regex but matching
-    # brackets  isn't happy
+    # gonna loop through and tokenize. Tried with Regex but matching brackets  isn't happy
     foreach my $char (split("", $inside)) {
-        #print "----\n";
-        #print "|char " . $char ."\n";
-        #print "|item ". $item . "\n";
-        #print "|bracketCount " . $bracketCount . "\n";
         if($char eq "," && !$bracketCount){
-            #print "|comma time\n";
             # In case we had a sub-block followed by a comma.
             if($item ne ""){
                 # if we have an empty array, this thing is the label
@@ -84,7 +75,6 @@ sub block{
 
         }
         elsif($char eq "{"){
-            #print "|open bracket time\n";
             if($item ne "" && !$bracketCount){
                 return error $inside,
                     "You have letters then {. Did you forget a comma?";
@@ -95,10 +85,8 @@ sub block{
             }
         }
         elsif($char eq "}"){
-            #print "|closed bracket time\n";
             $item .= $char;
             if(--$bracketCount == 0){
-                #print "|Uh oh, time to wrap this show up\n";
                 if(node($item, $subtree) == -1){
                     return -1;
                 }
@@ -119,11 +107,9 @@ sub block{
             }
             # just a letter or inside brackets
             else{
-                #print "|just a letter\n";
                 $item .= $char;
             }
         }
-        #print "|final " . $item . "\n";
     }
 
     if($bracketCount != 0){
@@ -150,22 +136,84 @@ sub block{
 
 
 sub draw{
-    my ($treeref) = @_;
+    my ($treeref, $height) = @_;
     my @tree = @{$treeref};
 
-    my $label = shift @tree;
-    my $width = pop @tree;
+    my @output = ();
 
-    my $labelWidth = 4 + length $label;
-    my $leftMargin = ($width - $labelWidth) / 2;
+    drawNode \@tree, \@output, 0, $height;
 
-    # my $width = length( $label ) + 4;
+    foreach my $line(@output){
+        print "$line\n";
+    }
+}
 
-    # print "-" x $width . "\n";
-    # print "| " . $label . " |\n";
-    # print "-" x $width . "\n";
-    # print " " x ($width/2) . "|\n";
+sub drawNode{
+    my ($treeref, $outputref, $level, $height) = @_;
+    
+    # Block
+    if(ref($treeref) eq "ARRAY"){
 
+        my $label = $treeref->[0];
+        my $width = $treeref->[-1];
+
+        my $labelWidth = 4 + length $label;
+        my $leftMargin = ($width - $labelWidth) / 2;
+        my $rightMargin = $width - $labelWidth - $leftMargin;
+
+        $outputref->[$level++] .= " " x $leftMargin . "-" x $labelWidth . " " x ($rightMargin + 1);
+        $outputref->[$level++] .= " "  x $leftMargin . "| $label |" . " " x ($rightMargin + 1);
+        $outputref->[$level++] .= " "  x $leftMargin . "-" x $labelWidth . " " x ($rightMargin + 1);
+        $outputref->[$level++] .= " " x ($leftMargin + $labelWidth / 2) . "|" . (" " x ($labelWidth - $labelWidth/2 + $rightMargin));
+        if(@{$treeref} > 3) {
+            $outputref->[$level++] .= "  " . "-" x ($width - 4) . "   ";
+        }
+
+        for(my $i = 1; $i < @{$treeref} -1; ++$i){
+
+            drawNode($treeref->[$i], $outputref, $level, $height - 1);
+        }
+    }
+    # Word
+    else{
+
+        my $labelWidth = 4 + length $treeref;
+
+        my $labelMod = 0;
+        $outputref->[$level + $labelMod++] .= "-" x $labelWidth . " ";
+        $outputref->[$level + $labelMod++] .= "| $treeref |" . " ";
+        $outputref->[$level + $labelMod++] .= "-" x $labelWidth . " ";
+        while (--$height){
+            $outputref->[$level + $labelMod++] .= " " x ($labelWidth+1);
+            $outputref->[$level + $labelMod++] .= " " x ($labelWidth+1);
+            $outputref->[$level + $labelMod++] .= " " x ($labelWidth+1);
+            $outputref->[$level + $labelMod++] .= " " x ($labelWidth+1);
+            $outputref->[$level + $labelMod++] .= " " x ($labelWidth+1);
+        }
+    }
+}
+
+sub height{
+    my ($tree) = @_;
+
+    my $height = 0;
+
+    # Has Children
+    if(ref($tree) eq "ARRAY") {
+        foreach my $child (@$tree) {
+            my $newHeight = 1 + height $child;
+
+            # http://www.perlmonks.org/?node_id=406883
+            # Sets $height to max of $height and $newHeight
+
+            # We make an array with our first value at index 0 and our second at index 1. Then we
+            # get the element at a position computed from the boolean expression, which works fine
+            # since our indexes are 0 and 1. Very cool. Very elegant
+            $height = ($height, $newHeight)[$height <= $newHeight];
+        }
+
+    }
+    return $height;
 }
 
 sub error{
@@ -200,6 +248,8 @@ sub printArray{
     print "]";
 }
 
+
+
 sub main{
     # print "Enter an expression: ";
 
@@ -214,7 +264,7 @@ sub main{
     #     $exp .= $buff . " "; 
     # }
 
-    my $exp = '{foo, {bar, baz, {abc, def}, asdf}}';
+    my $exp = '{foo, {asdff, bar, {baz, {test, foobar}, test2}, {asdf, {jkl, {omg, 2}}}}}';
 
     # This data structure will be our tree
     my $tree = [];
@@ -222,10 +272,11 @@ sub main{
     # Our macrosyntax states that our tree begins with one node
     if(node( $exp, $tree ) != -1) {
         printArray $tree;
+        print "\n";
+        print "" . (height $tree) ."\n";
+        # I could have done height in node, but it's too complicated already.
+        draw $tree->[0], height $tree;
     }
 }
 
 main();
-
-
-#{foo, foobar, {bar, baz, {abc, def}, asdf}}

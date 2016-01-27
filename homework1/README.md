@@ -111,23 +111,30 @@
 4. Give an abstract syntax tree for the following Java code fragment:
 
    ```
-if (x > 2 || !String.matches(f(x))) {
-    write(- 3*q);
-} else if (! here || there) {
-    do {
-        while (close) tryHarder();
-        x = x >>> 3 & 2 * x;
-    } while (false);
-    q[4].g(6) = person.list[2];
-} else {
-    throw up;
-}
+    if (x > 2 || !String.matches(f(x))) {
+        write(- 3*q);
+    } else if (! here || there) {
+        do {
+            while (close) tryHarder();
+            x = x >>> 3 & 2 * x;
+        } while (false);
+        q[4].g(6) = person.list[2];
+    } else {
+        throw up;
+    }
    ```
 
    Please note that the question asked for an abstract syntax tree and not a parse tree. If you give a parse tree, you will get a zero on the problem.
 
     * * *
-    
+    ```
+    {
+      {
+        if,
+        
+      }
+    }
+    ```
 
 
 5. Complete the first pass of the design of the language that you will be writing a compiler for during this term. Give your language description on the README.md file of a public github repository you will be setting up for the project. You should have, in your README,

@@ -16,7 +16,7 @@ sub main;
 
 #
 # Microsyntax:
-# Word:     [^{}, ]+|\'.+?\'
+# Word:     [^{}, ]+|["'].+?["']
 # Space:    \s+
 # 
 # Macrosyntax:
@@ -32,7 +32,7 @@ sub node{
     $string =~ s/^\s+|\s+$//g;
     
     # Word
-    if($string =~ m/(^[^{}, ]+)|(\'.+?\')$/){
+    if($string =~ m/(^[^{}, ]+)|(['"].+?['"])$/){
         push @{$tree}, $string;
     }
     # Block
@@ -63,9 +63,8 @@ sub block{
 
     # gonna loop through and tokenize. Tried with Regex but matching brackets  isn't happy
     foreach my $char (split("", $inside)) {
-        if($char eq "'"){
+        if($char eq "'" | $char eq '"'){
             if($quote){
-                $item .= $char;
                 push @{$subtree}, $item;
                 $item = "";
                 $quote = 0;
@@ -75,7 +74,6 @@ sub block{
                     return error $inside,
                         "You have letters then a '. Forget a comma?";
                 }
-                $item .= $char;
                 $quote = 1;
             }
         }

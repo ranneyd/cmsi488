@@ -16,7 +16,7 @@ sub main;
 
 #
 # Microsyntax:
-# Word:     [^{}, ]+
+# Word:     [^{}, ]+|\'.+?\'
 # Space:    \s+
 # 
 # Macrosyntax:
@@ -32,7 +32,7 @@ sub node{
     $string =~ s/^\s+|\s+$//g;
     
     # Word
-    if($string =~ m/^[^{}, ]+$/){
+    if($string =~ m/(^[^{}, ]+)|(\'.+?\')$/){
         push @{$tree}, $string;
     }
     # Block
@@ -55,6 +55,7 @@ sub block{
     my $subtree = [];
 
     my $bracketCount = 0;
+    my $quote = 0;
     my $item = "";
 
     # width of children. Every child is one space apart and has a width of 4 + label content
@@ -62,7 +63,23 @@ sub block{
 
     # gonna loop through and tokenize. Tried with Regex but matching brackets  isn't happy
     foreach my $char (split("", $inside)) {
-        if($char eq "," && !$bracketCount){
+        if($char eq "'"){
+            if($quote){
+                $item .= $char;
+                push @{$subtree}, $item;
+                $item = "";
+                $quote = 0;
+            }
+            else{
+                if($item ne ""){
+                    return error $inside,
+                        "You have letters then a '. Forget a comma?";
+                }
+                $item .= $char;
+                $quote = 1;
+            }
+        }
+        elsif($char eq "," && !$bracketCount){
             # In case we had a sub-block followed by a comma.
             if($item ne ""){
                 # if we have an empty array, this thing is the label
@@ -98,7 +115,7 @@ sub block{
         }
         else{
             # whitespace
-            if($char =~ m/\s/ && !$bracketCount) {
+            if($char =~ m/\s/ && !$bracketCount && !$quote) {
                 # whitespace without a comma is a no-go
                 if($item ne ""){
                     return error $inside, 

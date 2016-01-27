@@ -1,5 +1,6 @@
 #The Problems
 1. We saw in the course notes, on the page entitled "[Syntax](http://cs.lmu.edu/~ray/notes/syntax/)", an example of an abstract syntax tree with five concrete syntaxes. Show a sixth version of this "same" program, this time using a concrete syntax that also passes for a JSON object.
+    * * *
 
     ```
     {
@@ -29,8 +30,7 @@
 
    Explain why this choice was made. Also, give an abstract syntax tree for the expression `-8 * 5` and explain how this is similar to and how it is different from the alternative of dropping the negation from `Exp2` and adding `- Exp5` to `Exp4`.
 
-
-
+    * * *
 
     Since comments are denoted by "--", if negation had precedence over addition operations, the programmer would run into issues where they might want to subtract by a negative number and they end up with code commented out. For example, suppose a programmer wrote:
 
@@ -78,7 +78,7 @@
 
    Write the micro and macrosyntax of this language.
 
-
+    * * *
 
     Please ignore whitespace.
 

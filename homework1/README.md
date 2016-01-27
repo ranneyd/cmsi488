@@ -76,13 +76,33 @@ Because of math the result would be the same, but in the first example the produ
 
    Write the micro and macrosyntax of this language.
 
+   Please ignore whitespace.
 
    ## Microsyntax
 
    ```
-   test
+   s          -> \s+
+   id         -> (?!keyword)[a-zA-Z$][a-zA-Z0-9_@$]*
+   numlit     -> \d+ (\.\d+)? ('e'\d+)?
+   strlit     -> \"( \w | escape )+\"
+   escape     -> \\( \' | \" | 'r' | 'n' | \\ | u[0-9A-F]{4} )
+   keyword    -> fun
    ```
 
+   ## Macrosyntax
+
+   ```
+   Program      -> (FunctionDec s*)+ _Exp_
+   FunctionDec  -> 'fun' s+ id s* \(s* id?(, s* id)*\) s* Body
+   Body         -> {(exp ';')+}
+   Exp          -> 'if' s+ Exp1 s+ 'else' s+ Exp1
+   Exp1         -> Exp2 s* addop s* Exp3
+   Exp2         -> Exp3 s* multop s* Exp3
+   Exp3         -> -? s* Exp4
+   Exp4         -> Exp5!
+   Exp5         -> s* (numlit | strlit | id | FunctionCall | \( s* Exp s* \)) s*
+   FunctionCall -> id s* \(s* Exp? (, s* Exp)*\)
+   ```
 
 4. Give an abstract syntax tree for the following Java code fragment:
 

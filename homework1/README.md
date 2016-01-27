@@ -39,20 +39,20 @@
 
    The abstract syntax tree for `-8*5` is
 
-   ```
-     -----
-     | - |
-     -----
-       |
-     -----
-     | * |
-     -----
-       |
-    -------
-  ----- -----
-  | 8 | | 5 |
-  ----- -----
-  ```
+    ```
+       -----
+       | - |
+       -----
+         |
+       -----
+       | * |
+       -----
+         |
+      -------
+    ----- -----
+    | 8 | | 5 |
+    ----- -----
+    ```
 
 3. Here is a description of a language. Programs in this language are made up of a non-empty sequence of function declarations, followed by a single expression. Each function declaration starts with the keyword **fun** followed by the function's name (an identifier), then a parenthesized list of zero or more parameters (also identifiers) separated by commas, then the body, which is a sequence of one or more expressions terminated by semicolons with the sequence enclosed in curly braces. Expressions can be numeric literals, string literals, identifiers, function calls, or can be made up of other expressions with the usual binary arithmetic operators (plus, minus, times, divide) and a unary prefix negation and a unary postfix factorial (**!**). There's a conditional expression with the syntax `x` if `y` else `z`. Factorial has the highest precedence, followed by negation, the multiplicative operators, the additive operators, and finally the conditional. Parentheses are used, as in most other languages, to group subexpressions. Numeric literals are non-empty sequences of decimal digits with an optional fractional part and an optional exponent part. String literals delimited with double quotes with the escape sequences `\'`, `\"`, `\r`, `\n`, `\\`, and `\u` followed by four hexadecimal digits. Identifiers are non-empty sequences of letters, decimal digits, underscores, at-signs, and dollar signs, beginning with a letter or dollar sign, that are not also reserved words. Function calls are formed with an identifier followed by a comma-separated list of expressions bracketed by parentheses. There are no comments in this language, and whitespace can be used liberally between tokens.
 

@@ -1,22 +1,22 @@
 #The Problems
 1. We saw in the course notes, on the page entitled "[Syntax](http://cs.lmu.edu/~ray/notes/syntax/)", an example of an abstract syntax tree with five concrete syntaxes. Show a sixth version of this "same" program, this time using a concrete syntax that also passes for a JSON object.
 
-```
-{
-    Program:{
-        Var: [x,y],
-        While:{
-            condition: y - 5,
-            body: {
-                Var: y,
-                Read: [x, y],
-                x: 2 * (3 + y)
-            }
-        },
-        Write: 5
+    ```
+    {
+        Program:{
+            Var: [x,y],
+            While:{
+                condition: y - 5,
+                body: {
+                    Var: y,
+                    Read: [x, y],
+                    x: 2 * (3 + y)
+                }
+            },
+            Write: 5
+        }
     }
-}
-```
+    ```
 2. In the Ada language comments are started with "--" and go to the end of the line. Therefore the designers decided not to make the unary negation operator have the highest precedence. Instead, expressions are defined as follows:
 
    ```
@@ -30,12 +30,12 @@
    Explain why this choice was made. Also, give an abstract syntax tree for the expression `-8 * 5` and explain how this is similar to and how it is different from the alternative of dropping the negation from `Exp2` and adding `- Exp5` to `Exp4`.
 
 
-Since comments are denoted by "--", if negation had precedence over addition operations, the programmer would run into issues where they might want to subtract by a negative number and they end up with code commented out. For example, suppose a programmer wrote:
+    Since comments are denoted by "--", if negation had precedence over addition operations, the programmer would run into issues where they might want to subtract by a negative number and they end up with code commented out. For example, suppose a programmer wrote:
 
-```
-x--y
-```
-If the unary negation operator did have a higher precedence than the subtraction, this would technically be correct syntax (because whitespace is optional). But it would also be the correct syntax for a comment. One would obviously have precedence over the other, but it would likely be the comment and certainly be ambiguous and unintended. By giving the add operation precedence, the above code is incorrect syntax, since you cannot subtract by `-y`. 
+    ```
+    x--y
+    ```
+    If the unary negation operator did have a higher precedence than the subtraction, this would technically be correct syntax (because whitespace is optional). But it would also be the correct syntax for a comment. One would obviously have precedence over the other, but it would likely be the comment and certainly be ambiguous and unintended. By giving the add operation precedence, the above code is incorrect syntax, since you cannot subtract by `-y`. 
 
 The abstract syntax tree for `-8*5` is
 
@@ -76,33 +76,33 @@ Because of math the result would be the same, but in the first example the produ
 
    Write the micro and macrosyntax of this language.
 
-   Please ignore whitespace.
+Please ignore whitespace.
 
-   ## Microsyntax
+## Microsyntax
 
-   ```
-   s          -> \s+
-   id         -> (?!keyword)[a-zA-Z$][a-zA-Z0-9_@$]*
-   numlit     -> \d+ (\.\d+)? ('e'\d+)?
-   strlit     -> \"( \w | escape )+\"
-   escape     -> \\( \' | \" | 'r' | 'n' | \\ | u[0-9A-F]{4} )
-   keyword    -> fun
-   ```
+```
+s          -> \s+
+id         -> (?!keyword)[a-zA-Z$][a-zA-Z0-9_@$]*
+numlit     -> \d+ (\.\d+)? ('e'\d+)?
+strlit     -> \"( \w | escape )+\"
+escape     -> \\( \' | \" | 'r' | 'n' | \\ | u[0-9A-F]{4} )
+keyword    -> fun
+```
 
-   ## Macrosyntax
+## Macrosyntax
 
-   ```
-   Program      -> (FunctionDec s*)+ _Exp_
-   FunctionDec  -> 'fun' s+ id s* \(s* id?(, s* id)*\) s* Body
-   Body         -> {(exp ';')+}
-   Exp          -> 'if' s+ Exp1 s+ 'else' s+ Exp1
-   Exp1         -> Exp2 s* addop s* Exp3
-   Exp2         -> Exp3 s* multop s* Exp3
-   Exp3         -> -? s* Exp4
-   Exp4         -> Exp5!
-   Exp5         -> s* (numlit | strlit | id | FunctionCall | \( s* Exp s* \)) s*
-   FunctionCall -> id s* \(s* Exp? (, s* Exp)*\)
-   ```
+```
+Program      -> (FunctionDec s*)+ _Exp_
+FunctionDec  -> 'fun' s+ id s* \(s* id?(, s* id)*\) s* Body
+Body         -> {(exp ';')+}
+Exp          -> 'if' s+ Exp1 s+ 'else' s+ Exp1
+Exp1         -> Exp2 s* addop s* Exp3
+Exp2         -> Exp3 s* multop s* Exp3
+Exp3         -> -? s* Exp4
+Exp4         -> Exp5!
+Exp5         -> s* (numlit | strlit | id | FunctionCall | \( s* Exp s* \)) s*
+FunctionCall -> id s* \(s* Exp? (, s* Exp)*\)
+```
 
 4. Give an abstract syntax tree for the following Java code fragment:
 

@@ -16,8 +16,8 @@ sub main;
 
 #
 # Microsyntax:
-# Word:     \w+
-# Space:    \W+
+# Word:     [^{}, ]+
+# Space:    \s+
 # 
 # Macrosyntax:
 # Tree:     Node
@@ -32,7 +32,7 @@ sub node{
     $string =~ s/^\s+|\s+$//g;
     
     # Word
-    if($string =~ m/^\w+$/){
+    if($string =~ m/^[^{}, ]+$/){
         push @{$tree}, $string;
     }
     # Block
@@ -137,11 +137,12 @@ sub block{
 
 sub draw{
     my ($treeref, $height) = @_;
-    my @tree = @{$treeref};
 
     my @output = ();
 
-    drawNode \@tree, \@output, 0, $height;
+    # Gotta give it a tree reference, an output reference, level of our output (0 initially) and the
+    # height of our tree
+    drawNode $treeref, \@output, 0, $height;
 
     foreach my $line(@output){
         print "$line\n";
@@ -251,29 +252,25 @@ sub printArray{
 
 
 sub main{
-    # print "Enter an expression: ";
+    print "Enter an expression: ";
 
-    # my $exp = '';
-    # my $buff;
+    my $exp = '';
+    my $buff;
 
-    # # Loop over lines of input until only a newline is entered
-    # while( ($buff = <>) =~ /^[^\n]+$/ ){
-    #     # Replace all contiguous whitespace with a single space
-    #     $buff =~ s/\s+/ /g;
+    # Loop over lines of input until only a newline is entered
+    while( ($buff = <>) =~ /^[^\n]+$/ ){
+        # Replace all contiguous whitespace with a single space
+        $buff =~ s/\s+/ /g;
 
-    #     $exp .= $buff . " "; 
-    # }
+        $exp .= $buff . " "; 
+    }
 
-    my $exp = '{foo, {asdff, bar, {baz, {test, foobar}, test2}, {asdf, {jkl, {omg, 2}}}}}';
 
     # This data structure will be our tree
     my $tree = [];
 
     # Our macrosyntax states that our tree begins with one node
     if(node( $exp, $tree ) != -1) {
-        printArray $tree;
-        print "\n";
-        print "" . (height $tree) ."\n";
         # I could have done height in node, but it's too complicated already.
         draw $tree->[0], height $tree;
     }

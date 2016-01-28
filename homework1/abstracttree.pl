@@ -32,7 +32,7 @@ sub node{
     $string =~ s/^\s+|\s+$//g;
     
     # Word
-    if($string =~ m/(^[^{}, ]+)|(['"].+?['"])$/){
+    if($string =~ m/(^[^{},\s]+)|(['"].+?['"])$/){
         push @{$tree}, $string;
     }
     # Block
@@ -63,66 +63,96 @@ sub block{
 
     # gonna loop through and tokenize. Tried with Regex but matching brackets  isn't happy
     foreach my $char (split("", $inside)) {
-        if($char eq "'" | $char eq '"'){
-            if($quote){
-                push @{$subtree}, $item;
-                $item = "";
-                $quote = 0;
+        # We do not care about anything inside brackets. If it's in brackets, it all goes
+        if($bracketCount){
+            # The character goes in the bin unless it's a matching close bracket. This implies we
+            # need to count if it's an open bracket as well
+            if($char eq "{"){
+                $bracketCount++;
+                $item .= $char;
+            }
+            elsif($char eq "}"){
+                $item .= $char;
+                if(--$bracketCount == 0){
+                    if(node($item, $subtree) == -1){
+                        return -1;
+                    }
+
+                    # get the last element of the last thing in the list
+                    $width += 1 + $subtree->[-1]->[-1];
+
+                    $item = ""; 
+                }
             }
             else{
-                if($item ne ""){
-                    return error $inside,
-                        "You have letters then a '. Forget a comma?";
-                }
-                $quote = 1;
+                $item .= $char;
             }
         }
-        elsif($char eq "," && !$bracketCount){
-            # In case we had a sub-block followed by a comma.
-            if($item ne ""){
-                # if we have an empty array, this thing is the label
+        # If we have quotes, similarly, we don't care what goes inside
+        elsif($quote){
+            # if we get another quote, it's game time
+            if($char eq "'" || $char eq '"'){
+                
+                # if we have an empty array, this thing is the label, so don't count it
                 if(@{$subtree}){
                     $width += 5 + length $item;
                 }
                 push @{$subtree}, $item;
-                $item = "";  
-            }
 
-        }
-        elsif($char eq "{"){
-            if($item ne "" && !$bracketCount){
-                return error $inside,
-                    "You have letters then {. Did you forget a comma?";
+                $item = "";
+                $quote = 0;
             }
             else{
-                $bracketCount++;
                 $item .= $char;
             }
         }
-        elsif($char eq "}"){
-            $item .= $char;
-            if(--$bracketCount == 0){
-                if(node($item, $subtree) == -1){
-                    return -1;
-                }
-                # get the last element of the last thing in the list
-                $width += 1 + $subtree->[-1]->[-1];
-
-                $item = ""; 
-            }
-        }
+        # where the actual parsing happens
         else{
-            # whitespace
-            if($char =~ m/\s/ && !$bracketCount && !$quote) {
-                # whitespace without a comma is a no-go
+            # if we get a {, start bracket mode
+            if($char eq "{"){
+                # If someone has an open bracket but there's already a word we're working on, that's
+                # an error because a bracket cannot be part of an identifier
                 if($item ne ""){
-                    return error $inside, 
-                        "Sketchy whitespace error. Did you forget a comma?";
-                }   
+                    return error $inside,
+                        "You have letters then {. Did you forget a comma?";
+                }
+                else{
+                    $bracketCount++;
+                    $item .= $char;
+                }
             }
-            # just a letter or inside brackets
+            # If there is a } without an open {, there must be some kind of an error
+            elsif($char eq "}"){
+                return error $inside,
+                        "} detected without a preceding {. Too many brackets?";
+            }
+            # if we get a quote, we start quote mode
+            elsif($char eq "'" || $char eq '"'){
+                # If someone has a quote but there's already a word we're recording, that's an error
+                # because a quote cannot be used in an identifier.
+                if($item ne ""){
+                    return error $inside,
+                            "You have letters then a '. Forget a comma?";
+                }
+                $quote = 1;
+            }
+            # If we get a comma, the thing before it is an item
+            elsif($char eq ","){
+                # In case we had a sub-block followed by a comma.
+                if($item ne ""){
+                    # if we have an empty array, this thing is the label, so don't count it
+                    if(@{$subtree}){
+                        $width += 5 + length $item;
+                    }
+                    push @{$subtree}, $item;
+                    $item = "";  
+                }
+            }
+            # otherwise if it's not whitespace we just add it to the item we're working on
             else{
-                $item .= $char;
+                if($char =~ m/\S/){
+                    $item .= $char;
+                }
             }
         }
     }
@@ -178,11 +208,34 @@ sub drawNode{
         my $rightMargin = $width - $labelWidth - $leftMargin;
 
         $outputref->[$level++] .= " " x $leftMargin . "-" x $labelWidth . " " x ($rightMargin + 1);
-        $outputref->[$level++] .= " "  x $leftMargin . "| $label |" . " " x ($rightMargin + 1);
-        $outputref->[$level++] .= " "  x $leftMargin . "-" x $labelWidth . " " x ($rightMargin + 1);
+        $outputref->[$level++] .= " " x $leftMargin . "| $label |" . " " x ($rightMargin + 1);
+        $outputref->[$level++] .= " " x $leftMargin . "-" x $labelWidth . " " x ($rightMargin + 1);
         $outputref->[$level++] .= " " x ($leftMargin + $labelWidth / 2) . "|" . (" " x ($labelWidth - $labelWidth/2 + $rightMargin));
         if(@{$treeref} > 3) {
-            $outputref->[$level++] .= "  " . "-" x ($width - 4) . "   ";
+            my $leftBranchMargin = 0;
+            my $rightBranchMargin = 0;
+
+            # if the left child is an array, we can find its width from its last element
+            if(ref($treeref->[1]) eq "ARRAY"){
+                $leftBranchMargin = $treeref->[1]->[-1] / 2 + $treeref->[1]->[-1] % 2;
+            }
+            # otherwise it's just a word
+            else{
+                $leftBranchMargin = length($treeref->[1]) / 2 + length($treeref->[1]) % 2;
+            }
+            # if the left child is an array, we can find its width from its last element
+            if(ref($treeref->[-2]) eq "ARRAY"){
+                my $length = $treeref->[-2]->[-1];
+                $rightBranchMargin = $length / 2 + $length % 2;
+            }
+            # otherwise it's just a word
+            else{
+                my $length = length($treeref->[-2]);
+                $rightBranchMargin = $length / 2 + $length % 2;
+            }
+            $outputref->[$level++] .= " " x $leftBranchMargin
+                                    . "-" x ($width - $leftBranchMargin - $rightBranchMargin) 
+                                    . " " x ($rightBranchMargin+1);
         }
 
         for(my $i = 1; $i < @{$treeref} -1; ++$i){
@@ -234,7 +287,7 @@ sub height{
 
 sub error{
     my ( $string, $msg ) = @_;
-    print "Syntax error near '" . substr( $string, 0, 10 ) . "...'\n";
+    print "Syntax error near '" . substr( $string, 0, 20 ) . "...'\n";
     print $msg . "\n";
     return -1;
 }
@@ -275,10 +328,12 @@ sub main{
     # Loop over lines of input until only a newline is entered
     while( ($buff = <>) =~ /^[^\n]+$/ ){
         # Replace all contiguous whitespace with a single space
-        $buff =~ s/\s+/ /g;
-
+        # $buff =~ s/\s+//g;
+        chomp($buff);
         $exp .= $buff . " "; 
     }
+
+    print "\n";
 
 
     # This data structure will be our tree

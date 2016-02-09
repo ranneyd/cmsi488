@@ -1,109 +1,112 @@
 {
-      Program,
+  Program,
+  {
+    if,
+    {
+      if,
       {
-        if,
+        ||,
         {
-          ||,
-          {
-            ">",
-            x,
-            2
-          },
-          {
-            !,
-            {
-              String,
-              {
-                matches,
-                {
-                  "   f   ",
-                  "   x   "
-                }
-              }
-            }
-          }
+          ">",
+          x,
+          2
         },
         {
-          write,
+          !,
           {
-            *,
+            String,
             {
-              -,
-              3
-            },
-            q
+              matches,
+              {
+                "   f   ",
+                "   x   "
+              }
+            }
           }
         }
       },
       {
-        "else if",
+        write,
         {
-          ||,
+          *,
           {
-            !,
-            here
+            -,
+            3
           },
-          there
+          q
+        }
+      }
+    },
+    {
+      "else if",
+      {
+        ||,
+        {
+          !,
+          here
         },
+        there
+      },
+      {
+        do,
         {
-          do,
-          {
-            while,
-            close,
-            tryHarder()
-          },
-          {
-            =,
-            x,
-            {
-              &,
-              {
-                >>>,
-                x,
-                3
-              },
-              {
-                *,
-                2,
-                x
-              }
-            }
-          },
-          {
-            while,
-            false
-          }
+          while,
+          close,
+          tryHarder()
         },
         {
           =,
+          x,
           {
-            q,
+            &,
             {
-              [],
-              " 4 "
+              >>>,
+              x,
+              3
             },
             {
-              g,
-              6
-            }
-          },
-          {
-            person,
-            {
-              " list ",
-              {
-                "  []  ",
-                "   2  "
-              }
+              *,
+              2,
+              x
             }
           }
+        },
+        {
+          while,
+          false
         }
       },
       {
-        else,
+        =,
         {
-          throw,
-          "  up  "
+          q,
+          {
+            [],
+            " 4 "
+          },
+          {
+            g,
+            6
+          }
+        },
+        {
+          person,
+          {
+            " list ",
+            {
+              "  []  ",
+              "   2  "
+            }
+          }
         }
       }
+    },
+    {
+      else,
+      {
+        throw,
+        "  up  "
+      }
     }
+  }
+}

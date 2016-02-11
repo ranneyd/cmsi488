@@ -327,8 +327,6 @@ sub main{
 
     # Loop over lines of input until only a newline is entered
     while( ($buff = <>) =~ /^[^\n]+$/ ){
-        # Replace all contiguous whitespace with a single space
-        # $buff =~ s/\s+//g;
         chomp($buff);
         $exp .= $buff . " "; 
     }

@@ -1,5 +1,6 @@
 #The Problems
 1. Write regular expressions, and a package of functions (in the language of your choice) to recognize them, for each of the following.
+
   a. Canadian Postal Codes
   According to Wikipedia, Canadian postal codes "are in the format A1A 1A1, where A is a letter and 1 is a digit, with a space separating the third and fourth characters". Thus,
   ```

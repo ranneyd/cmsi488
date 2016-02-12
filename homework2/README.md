@@ -48,8 +48,11 @@
   
   i. All strings of Basic Latin letters, except file, find, or for, without using lookarounds.
 
+  So this is a bit of a mess. First of all, we need to support the empty string, but we need to check the entire string, so we do `^(...)?$`. Next, we will check various things followed by `[a-z]*`. If we have a non-f character, we're good. Otherwise, if we have an f followed by not i or o, we're good. Otherwise, we can have fo followed by not an r and be fine. But we can also have and r if it's followed by another letter. Backtracking, we can have an i after our f so long as it isn't followed by an l or n. However, we can have an l if it's not followed by an e. If it's followed by an e, it need to be followed by another letter. Backtracking, we can have an n follow our fi so long as it isn't followed by a d. If it's followed by a d it needs to have some other letter after it. With that, we still need to support words that almost make our banned words, like "fo","fi", "fin", etc. So we do a big | and say we can have an f followed by an o, i or i followed by an l or n.
+
   ```
-    /^((fo)|(fil)|(fin))|(([^f])|(f[^io])|(fo[^r]|(fil[^e])|(fin[^d])[a-z])*$/
+    /^(([^f]|f([^io]|o([^r]|r[a-z])|i([^ln]|l([^e]|e[a-z])|n([^d]|d[a-z]))))[a-z]*|(f(o|i|i(l|n))))?$/
+
   ```
   
   j. All strings of Basic Latin letters, except file, find, or for, using lookarounds.

@@ -56,5 +56,8 @@
   ```
   
   j. All strings of Basic Latin letters, except file, find, or for, using lookarounds.
+  ```
+    /^([^f]|f((?!o|i)|fo(?!r))[a-z]*$/
+  ```
 2. Clean up the README.md file for your compile project, and add a beautiful, perfect microsyntax and macrosyntax.
 3. Add syntax checking to your compiler project. That is, implement a parser that can determine whether or not an input program is syntactically correct, but does not need to output an abstract syntax tree. (That will come in the next homework assignment.)

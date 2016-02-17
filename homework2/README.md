@@ -29,7 +29,7 @@
   An Ada 95 numeric literal is either a `decimal_literal` or a `based_literal`. A `decimal_literal` is a `numeral` followed by an optional `.numeral` followed by an optional `exponent`. A `numeral` is a `digit` followed by zero or more `digits`, optionally preceded by a `"_"`. A digit is 0-9. An exponent is either `E` followed by an optional `"+"` followed by a `numeral` or `E - numeral`. A `based_literal` is a `base` followed by `#based_numeral` followed by an optional `.based_numeral` followed by another `"#"` followed by an optional `exponent`. A `base` is just a `numeral` and a `based_numeral` is a hex digit. With all that in mind, behold:
 
   ```
-    //
+    /^(\d(_?\d)*(\.\d(_?\d)*)?(E(\+?|-)\d(_?\d)*)?|\d(_?\d)*#[0-9A-F](_?[0-9A-F])*(\.[0-9A-F](_?[0-9A-F])*)?#(E(\+?|-)\d(_?\d)*)?)$/
   ```
   
   e. Strings of Basic Latin letters beginning with a letter, EXCEPT those strings that are exactly three letters ending with two Latin letter os, of any case.

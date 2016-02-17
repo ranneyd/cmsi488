@@ -26,7 +26,11 @@
   
   d. [Ada 95 numeric literals](http://cui.unige.ch/isi/bnf/Ada95/numeric_literal.html)
 
-  An Ada 95 numeric literal is either a `decimal_literal` or a `based_literal`. A `decimal_literal` is a `numeral` followed by an optional `.numeral` followed by an optional `exponent`. A `numeral` is a `digit` followed by zero or more `digits`, optionally preceded by a `"_"`. A digit is 0-9. An exponent is either `E` followed by an optional `"+"` followed by a `numeral` or `E-numeral`. A `based_literal` is a `base` followed by `#based_numeral` followed by an optional `.based_numeral` followed by another `"#"` followed by an optional `exponent`. And a `base` is just a `numeral`. With all that in mind, behold:
+  An Ada 95 numeric literal is either a `decimal_literal` or a `based_literal`. A `decimal_literal` is a `numeral` followed by an optional `.numeral` followed by an optional `exponent`. A `numeral` is a `digit` followed by zero or more `digits`, optionally preceded by a `"_"`. A digit is 0-9. An exponent is either `E` followed by an optional `"+"` followed by a `numeral` or `E - numeral`. A `based_literal` is a `base` followed by `#based_numeral` followed by an optional `.based_numeral` followed by another `"#"` followed by an optional `exponent`. A `base` is just a `numeral` and a `based_numeral` is a hex digit. With all that in mind, behold:
+
+  ```
+    //
+  ```
   
   e. Strings of Basic Latin letters beginning with a letter, EXCEPT those strings that are exactly three letters ending with two Latin letter os, of any case.
   
@@ -45,6 +49,10 @@
   ```
   
   h. Non-nesting ML-style comments: strings beginning with (* and ending with *).
+
+  ```
+    /^\(\*.*?\*\)$/
+  ```
   
   i. All strings of Basic Latin letters, except file, find, or for, without using lookarounds.
 
@@ -56,8 +64,11 @@
   ```
   
   j. All strings of Basic Latin letters, except file, find, or for, using lookarounds.
+
+  2 ez
+
   ```
-    /^([^f]|f((?!o|i)|fo(?!r))[a-z]*$/
+    /^([^f]|f(?!(or|i(le|nd))$))*$/
   ```
 2. Clean up the README.md file for your compile project, and add a beautiful, perfect microsyntax and macrosyntax.
 3. Add syntax checking to your compiler project. That is, implement a parser that can determine whether or not an input program is syntactically correct, but does not need to output an abstract syntax tree. (That will come in the next homework assignment.)

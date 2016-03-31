@@ -16,7 +16,7 @@ sub main;
 
 #
 # Microsyntax:
-# Word:     [^{}, ]+|["'].+?["']
+# Word:     [^{}, ]+|["].+?["]
 # Space:    \s+
 # 
 # Macrosyntax:
@@ -91,7 +91,7 @@ sub block{
         # If we have quotes, similarly, we don't care what goes inside
         elsif($quote){
             # if we get another quote, it's game time
-            if($char eq "'" || $char eq '"'){
+            if($char eq '"'){
                 
                 # if we have an empty array, this thing is the label, so don't count it
                 if(@{$subtree}){
@@ -127,7 +127,7 @@ sub block{
                         "} detected without a preceding {. Too many brackets?";
             }
             # if we get a quote, we start quote mode
-            elsif($char eq "'" || $char eq '"'){
+            elsif($char eq '"'){
                 # If someone has a quote but there's already a word we're recording, that's an error
                 # because a quote cannot be used in an identifier.
                 if($item ne ""){

@@ -1,6 +1,5 @@
 #The Problems
 1. Here's a grammar:
-
 	```
 	  S ::= A M
 	  M ::= S?
@@ -96,3 +95,4 @@
 	* `3x-x^3+2`
 	* `-9x^5-0+4x^100`
 	* `-3x^1+8x^0`
+

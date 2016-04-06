@@ -10,7 +10,7 @@
 
 	a. Describe in English, the language of this grammar.
 
-	I have no idea what this language does other than match strings that have 'a's and 'b's
+	This language matches strings that have more 'a's than 'b's. 
   
 	b. Draw a parse tree for the string "abaa"
 

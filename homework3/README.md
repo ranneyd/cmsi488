@@ -10,7 +10,7 @@
 
 	a. Describe in English, the language of this grammar.
 
-	This language matches strings that have more 'a's than 'b's. 
+	This language matches strings that have more 'a's than 'b's. A matches strings that have one more 'a' than 'b's, 'e' matches strings that have an equal number of 'a's and 'b's, and B matches strings that have one more 'b' than 'a's. S matches one more more A's.
   
 	b. Draw a parse tree for the string "abaa"
 
@@ -43,11 +43,11 @@
 
 	c. Prove or disprove: "This grammar is LL(1)"
 
-	This grammar is not LL(1). The problem is with nonterminal E. E is optional. Suppose we are parsing a string, the next character is 'a' and we end up at E. Do we match `'a' B` or do we terminate and backtrack to `A M` and let M continue to `S->A->'a' E` which matches our 'a'? The choice matters because if the next character is a 'b', the second option will not work and we must evaluate the `'a' B`. Since we're looking ahead two, this is not LL(1); it is at least LL(2).
+	This grammar is not LL(1). Look at string 'aab'. It matches the first 'a' then arives at category E. The next token is an 'a'. An 'a' is a string that has one more 'a' than it has 'b's, so the 'a' we just matched could be the whole A, and this new 'a' could be another whole A or the beginning of another one. Assuming the second case, we can match nothing at this E and backtrack to the M case. However, if we did that, the string would not match because A doesn't match 'ab' ('ab' does not have one more 'a' than it has 'b's). This string 'aab' does match, however, so we need to know back in the fork at the road that we need to match the 'a' in the E case. But the only way we could have known that was by looking ahead at the 'b'. Thus, this cannot be LL(1).
 
 	d. Prove or disprove: "This grammar is ambiguous"
 
-	This grammar is ambigious because you can write different parse trees for the same string for some strings. Consider 'aabbaa'. S can match 'a', 'aabba', and 'abbaa'. Since S is A followed by M, and M is an optional new S, our S can be followed by another S. This means that the first S can be 'a' and the second can be 'abbaa' or the first can be 'aabba' and the second can be 'a'.
+	This grammar is ambigious because you can potentially write different parse trees for the same string. Consider 'aabbaa'. S can match 'a', 'aabba', and 'abbaa'. We know this matches one or more A's. This means that the first A can be 'a' and the second can be 'abbaa' or the first can be 'aabba' and the second can be 'a'.
 
 2. Here's a grammar that's trying to capture the usual expressions, terms, and factors, while considering assignment to be an expression.
 
@@ -66,24 +66,23 @@
 	b. Rewrite it so that it is LL(1)
 
 	```
-	Exp		::= Mult ('+' Mult)*
-	Mult	::= Factor ('*' Factor)*
-	Factor	::= '(' Exp ')' | id ( ':=' Exp)?
+	Exp         ::= Parens | Ids
+    Parens      ::= '(' Exp ')'
+    Ids         ::= id (Assign | TermTail)?
+    Assign      ::= ':=' Exp
+    TermTail    ::= MultTail? '+' Factor MultTail? TermTail?
+    MultTail    ::= '*' Factor MultTail?
+    Factor      ::= Parens | id
 	```
 
 	c. Rewrite the grammar as a PEG
 
 	```
-	Exp		::= Mult (Plus Mult)*
-	Mult	::= Factor (Star Factor)*
-	Factor	::= oParen Exp cParen
-	Factor	::= Id (Assign Exp)?
-	Id		::= id
-	Plus	::= '+'
-	Star	::= '*'
-	oParen	::= '('
-	cParen	::= ')'
-	assign	::= ':='
+	Exp			::= id ':=' Exp | Term TermTail
+	TermTail	::= ('+' Term TermTail)?
+	Term		::= Factor FactorTail
+	FactorTail  ::= ('*' Factor FactorTail)?
+	Factor		::= '(' Exp ')' | id
 	```
 
 3. Write an attribute grammar for the grammar in the previous problem. Your attribute grammar should describe the "obvious" run-time semantics.
